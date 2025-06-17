@@ -9,16 +9,18 @@ import lombok.Data;
 
 @Entity
 @Data
-public class User {
+public class Product {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long productid;
 
-    @NotBlank(message = "Username can't be null or empty")
-    private String username;
+    @NotBlank(message = "ProductName can't be blank")
+    private String productName;
 
-    private String email;
+    private String description;
 
-    private String password;
+    private String category;
+
+    private double price;
 }
