@@ -70,4 +70,43 @@ public class ProductService {
         }
         return res;
     }
+
+    public ProductDto updateProduct(String productName, ProductDto productreq) throws DataNotFoundException {
+      
+        Product product = productRepo.findByProductName(productName);
+        ProductDto updatedProduct = new ProductDto();
+
+        if(product != null){
+            if(productreq.getDescription()!=null){
+                product.setDescription(productreq.getDescription());
+            }
+              
+            if(productreq.getCategory()!=null){
+                product.setCategory(productreq.getCategory());
+            }
+               
+            if(productreq.getPrice()>0.0){
+                product.setPrice(productreq.getPrice());
+            }
+
+            productRepo.save(product);
+            BeanUtils.copyProperties(product, updatedProduct);
+        }
+        else{
+            throw new DataNotFoundException("Data not found for " + productName);
+        }
+
+        return updatedProduct;
+    }
+
+    public void deleteProductById(String productName) throws DataNotFoundException{
+        Product product = productRepo.findByProductName(productName);
+        if(product != null){
+            productRepo.deleteById(product.getProductid());
+        }
+        else{
+            throw new DataNotFoundException("Data not found for " + productName);
+        }
+
+    }
 }
