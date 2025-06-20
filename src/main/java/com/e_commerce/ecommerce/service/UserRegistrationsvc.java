@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.e_commerce.ecommerce.dto.UserRequestDto;
@@ -16,20 +17,25 @@ import com.e_commerce.ecommerce.repo.UserRepo;
 @Service
 public class UserRegistrationsvc {
 
+    private PasswordEncoder passwordEncoder;
+
     private final UserRepo userRepo;
     
-    public UserRegistrationsvc(UserRepo userRepo){
+    public UserRegistrationsvc(UserRepo userRepo, PasswordEncoder passwordEncoder){
         this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public void addUser(UserRequestDto userreq) throws IdExistException{
 
             User user = userRepo.findByUsername(userreq.getUsername());
             if(user == null){
+                String hashedPassword = passwordEncoder.encode(userreq.getPassword());
                 User newUser = new User();
                 newUser.setUsername(userreq.getUsername());
-                newUser.setPassword(userreq.getPassword());
+                newUser.setPassword(hashedPassword);
                 newUser.setEmail(userreq.getEmail());
+                newUser.setRole(userreq.getRole());
                 userRepo.save(newUser);
             }
             else{
@@ -46,6 +52,7 @@ public class UserRegistrationsvc {
             res.setEmail(user.getEmail());
             res.setId(user.getId());
             res.setUsername(user.getUsername());
+            res.setRole(user.getRole());
         }
         else{
             throw new DataNotFoundException("Data not found for: " + username);
@@ -64,7 +71,10 @@ public class UserRegistrationsvc {
             }
             if(userreq.getPassword()!=null){
                 user.setPassword(userreq.getPassword());  
-            }   
+            }  
+            if(userreq.getRole()!=null){
+                user.setRole(userreq.getRole());
+            } 
                 userRepo.save(user);
                 BeanUtils.copyProperties(user, userres);
         }
