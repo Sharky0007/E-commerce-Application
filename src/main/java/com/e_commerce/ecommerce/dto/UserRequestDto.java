@@ -1,5 +1,7 @@
 package com.e_commerce.ecommerce.dto;
 
+import com.e_commerce.ecommerce.enums.Roles;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -12,4 +14,6 @@ public class UserRequestDto {
     private String email;
 
     private String password;
+
+    private Roles role;
 }
