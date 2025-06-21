@@ -8,12 +8,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.e_commerce.ecommerce.security.JwtFilter;
 import com.e_commerce.ecommerce.security.JwtUtils;
 import com.e_commerce.ecommerce.service.UserDetailsServiceImpl;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -35,8 +38,12 @@ public class SecurityConfig{
         http.csrf().disable()
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/login").permitAll()
+                // .requestMatchers("/api/product/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(exception -> exception
+            .authenticationEntryPoint(authenticationEntryPoint())
+        );
         return http.build();
     }
 
@@ -56,6 +63,13 @@ public class SecurityConfig{
     @Bean
     public JwtUtils jwtUtils() {
         return new JwtUtils();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+        };
     }
 
 }

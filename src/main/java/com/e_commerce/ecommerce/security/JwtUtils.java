@@ -24,8 +24,8 @@ public class JwtUtils {
 
     public String generateToken(String username) throws InvalidKeyException, DataNotFoundException {
         return Jwts.builder()
-                .setSubject(username)
                 .setClaims(setCustomClaims(registrationsvc.getUserByName(username)))
+                .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
@@ -49,7 +49,7 @@ public class JwtUtils {
     private Map<String, Object> setCustomClaims(UserResponseDto user){
         Map<String, Object> claims = new HashMap<>();
 
-        claims.put("role", user.getRole());
+        claims.put("ROLE", user.getRole());
         claims.put("USER", user.getUsername());
         return claims;
     }
