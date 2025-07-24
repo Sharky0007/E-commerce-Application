@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +34,7 @@ public class ProductController {
     }
     
     @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto product) throws IdExistException{
         
         ProductDto res = productService.addProduct(product);
@@ -48,6 +50,7 @@ public class ProductController {
     }
 
     @GetMapping("/{productid}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDto> getProductById(@PathVariable String productName) throws DataNotFoundException{
 
         logger.info("Getting product details for {}.....",productName);
@@ -57,6 +60,7 @@ public class ProductController {
     }
 
     @GetMapping("/getall")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<List<ProductDto>> getAllProducts(){
         logger.info("Getting product list....");
         List<ProductDto> res = productService.getAllProducts();
@@ -65,6 +69,7 @@ public class ProductController {
     }
 
     @PutMapping("/update/{productName}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDto> updateProduct(@PathVariable String productName, @RequestBody ProductDto productreq) throws DataNotFoundException{
         logger.info("Updating product......");
         ProductDto res = productService.updateProduct(productName, productreq);
@@ -73,6 +78,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{productName}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteProductById(@PathVariable String productName) throws DataNotFoundException{
         logger.info("Deleting product.....");
         productService.deleteProductById(productName);
