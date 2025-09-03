@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.e_commerce.ecommerce.dto.UserRequestDto;
 import com.e_commerce.ecommerce.dto.UserResponseDto;
 import com.e_commerce.ecommerce.entity.User;
+import com.e_commerce.ecommerce.enums.Roles;
 import com.e_commerce.ecommerce.exceptions.DataNotFoundException;
 import com.e_commerce.ecommerce.exceptions.IdExistException;
 import com.e_commerce.ecommerce.repo.UserRepo;
@@ -26,21 +27,29 @@ public class UserRegistrationsvc {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void addUser(UserRequestDto userreq) throws IdExistException{
+    public UserResponseDto addUser(UserRequestDto userreq) throws IdExistException{
 
             User user = userRepo.findByUsername(userreq.getUsername());
+            User newUser = new User();
             if(user == null){
                 String hashedPassword = passwordEncoder.encode(userreq.getPassword());
-                User newUser = new User();
                 newUser.setUsername(userreq.getUsername());
                 newUser.setPassword(hashedPassword);
                 newUser.setEmail(userreq.getEmail());
-                newUser.setRole(userreq.getRole());
+                if(userreq.getRole() == null){
+                    newUser.setRole(Roles.USER);
+                }
+                else{
+                     newUser.setRole(userreq.getRole());
+                }
                 userRepo.save(newUser);
             }
             else{
                 throw new IdExistException("User " + userreq.getUsername() + " already exist.");
             }
+            UserResponseDto dto = userToDto(newUser);
+
+            return dto;
     }
 
     public UserResponseDto getUserByName(String username) throws DataNotFoundException{
@@ -50,7 +59,6 @@ public class UserRegistrationsvc {
 
         if(user != null){
             res.setEmail(user.getEmail());
-            res.setId(user.getId());
             res.setUsername(user.getUsername());
             res.setRole(user.getRole());
         }
@@ -103,10 +111,16 @@ public class UserRegistrationsvc {
 
         User res = userRepo.findByUsername(username);
         if(res != null){
-            userRepo.deleteById(res.getId());
+            userRepo.delete(res);
         }
         else{
             throw new DataNotFoundException("No data found for " + username);
         }
+    }
+
+    public UserResponseDto userToDto(User user){
+        UserResponseDto dto = new UserResponseDto();
+        BeanUtils.copyProperties(user, dto);
+        return dto;
     }
 }
