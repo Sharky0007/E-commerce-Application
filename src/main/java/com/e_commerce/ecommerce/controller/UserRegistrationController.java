@@ -29,9 +29,9 @@ public class UserRegistrationController {
     private UserRegistrationsvc userRegistrationsvc;
 
     @PostMapping(value = "/signup")
-    public ResponseEntity<String> signup(@RequestBody UserRequestDto user) throws IdExistException{
+    public ResponseEntity<UserResponseDto> signup(@RequestBody UserRequestDto user) throws IdExistException{
         
-        userRegistrationsvc.addUser(user); 
+        UserResponseDto dto = userRegistrationsvc.addUser(user); 
 
         URI location = ServletUriComponentsBuilder
         .fromCurrentRequest()
@@ -39,7 +39,7 @@ public class UserRegistrationController {
         .buildAndExpand(user.getUsername())
         .toUri();
 
-        return ResponseEntity.created(location).body("User Registered Successfully");
+        return ResponseEntity.created(location).body(dto);
 
     } 
 
@@ -52,7 +52,7 @@ public class UserRegistrationController {
     }
 
     @PutMapping("/update/{username}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable String username, @RequestBody UserRequestDto userreq) throws DataNotFoundException{
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable String username,@RequestBody UserRequestDto userreq) throws DataNotFoundException{
 
         UserResponseDto userres = userRegistrationsvc.updateUser(username, userreq);
 

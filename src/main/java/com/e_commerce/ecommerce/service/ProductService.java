@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.e_commerce.ecommerce.dto.ProductDto;
 import com.e_commerce.ecommerce.entity.Product;
 import com.e_commerce.ecommerce.exceptions.DataNotFoundException;
-import com.e_commerce.ecommerce.exceptions.IdExistException;
 import com.e_commerce.ecommerce.repo.ProductRepo;
 
 @Service
@@ -21,7 +20,7 @@ public class ProductService {
         this.productRepo = productRepo;
     }
     
-    public ProductDto addProduct(ProductDto productReq) throws IdExistException{
+    public ProductDto addProduct(ProductDto productReq){
 
         Product product = new Product();
 
@@ -32,11 +31,14 @@ public class ProductService {
             product.setDescription(productReq.getDescription());
             product.setCategory(productReq.getCategory());
             product.setPrice(productReq.getPrice());
+            product.setProductCount(1);
 
             productRepo.save(product);
         }
         else{
-            throw new IdExistException(productReq.getProductName() + " already exist.");
+            BeanUtils.copyProperties(validProduct, product);
+            product.setProductCount(validProduct.getProductCount()+1);
+            productRepo.save(product);
         }
 
         ProductDto res = new ProductDto();
@@ -102,7 +104,7 @@ public class ProductService {
     public void deleteProductById(String productName) throws DataNotFoundException{
         Product product = productRepo.findByProductName(productName);
         if(product != null){
-            productRepo.deleteById(product.getProductid());
+            productRepo.delete(product);
         }
         else{
             throw new DataNotFoundException("Data not found for " + productName);

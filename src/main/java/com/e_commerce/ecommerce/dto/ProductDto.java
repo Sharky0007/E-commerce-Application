@@ -14,4 +14,6 @@ public class ProductDto {
     private String category;
 
     private double price;
+
+    private int productCount;
 }

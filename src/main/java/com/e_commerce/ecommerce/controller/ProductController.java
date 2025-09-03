@@ -18,7 +18,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.e_commerce.ecommerce.dto.ProductDto;
 import com.e_commerce.ecommerce.exceptions.DataNotFoundException;
-import com.e_commerce.ecommerce.exceptions.IdExistException;
 import com.e_commerce.ecommerce.service.ProductService;
 
 @RestController
@@ -35,7 +34,7 @@ public class ProductController {
     
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto product) throws IdExistException{
+    public ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto product){
         
         ProductDto res = productService.addProduct(product);
 
@@ -50,8 +49,8 @@ public class ProductController {
     }
 
     @GetMapping("/{productid}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable String productName) throws DataNotFoundException{
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    public ResponseEntity<ProductDto> getProductById(@PathVariable("productid") String productName) throws DataNotFoundException{
 
         logger.info("Getting product details for {}.....",productName);
         ProductDto res = productService.getProductById(productName);
