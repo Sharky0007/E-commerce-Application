@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.e_commerce.ecommerce.entity.Product;
 
 @Repository
-public interface ProductRepo extends JpaRepository<Product, Long> {
+public interface ProductRepo extends JpaRepository<Product, String> {
 
     Product findByProductName(String productName);
 
