@@ -1,9 +1,11 @@
 package com.e_commerce.ecommerce.service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.e_commerce.ecommerce.dto.CartResponseDto;
 import com.e_commerce.ecommerce.entity.Cart;
@@ -88,12 +90,65 @@ public class CartService {
         }
 
         Cart cart = cartrep.findByUserName(username);
-        System.out.println(cart);
 
-        List<CartItem> items = cart.getItems();
-        res.setUsername(username);
-        res.setItems(items);
-        res.setTotalPrice(cart.getTotalPrice());
+        if(cart!=null){
+            List<CartItem> items = cart.getItems();
+            res.setUsername(username);
+            res.setItems(items);
+            res.setTotalPrice(cart.getTotalPrice());
+        }
         return res;
+    }
+
+    @Transactional
+    public String deleteCartItem(String userName, String productName) {
+
+        User existedUser = userrep.findByUsername(userName);
+        Product existedProduct = productrep.findByProductName(productName);
+
+        if(existedUser == null){
+            return "User Not Found";
+        }
+
+        if(existedProduct == null){
+            return "Product not found";
+        }
+
+        Cart cart = cartrep.findByUserName(userName);
+        if(cart !=null){
+           List<CartItem> items = cart.getItems();
+            if(cart.getItems().isEmpty()){
+                cartrep.delete(cart);
+                return "Cart deleted";
+            }
+           Iterator<CartItem> iterator = items.iterator();
+           boolean itemfound = false;
+           while(iterator.hasNext()){
+            CartItem item = iterator.next();
+            if(item.getProductName().equals(productName)){
+                itemfound = true;
+                if(item.getQuantity() > 1){
+                    item.setQuantity(item.getQuantity() - 1);
+                    item.setPrice(item.getPrice() - existedProduct.getPrice());
+                    itemrepo.save(item);
+                }
+                else{
+                    iterator.remove();
+                    itemrepo.delete(item);
+                }
+                    cart.setTotalPrice(cart.getTotalPrice() - existedProduct.getPrice());
+                    cartrep.save(cart);
+                    break;
+             }
+           }
+            if(itemfound){
+                return "Product deleted";
+             }
+             else{
+                   return "Item not found";
+             }
+        }
+            return "Cart is empty";
+
     }
 }
