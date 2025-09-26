@@ -3,11 +3,10 @@ package com.e_commerce.ecommerce.repo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.e_commerce.ecommerce.entity.User;
-
+import com.e_commerce.ecommerce.entity.Cart;
 @Repository
-public interface UserRepo extends JpaRepository<User, String>{
+public interface CartRepo extends JpaRepository<Cart, Long> {
 
-    User findByUsername(String username);
-
+    Cart findByUserName(String userName);
+	
 }
